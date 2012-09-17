@@ -9,4 +9,10 @@ FactoryGirl.define do
       admin true
     end
   end
+
+  factory :wishes do
+    content "Lorem ipsum"
+    user
+  end
+
 end

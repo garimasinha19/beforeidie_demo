@@ -1,6 +1,6 @@
 BeforeidieDemo::Application.routes.draw do
   
-  resources :wishes
+  resources :wishes, only: [:create, :destroy]
 
   resources :users
 

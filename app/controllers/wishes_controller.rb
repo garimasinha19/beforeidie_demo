@@ -1,6 +1,10 @@
 class WishesController < ApplicationController
   # GET /wishes
   # GET /wishes.json
+
+  before_filter :signed_in_user, only: [:create, :destroy]
+  before_filter :correct_user,   only: :destroy
+
   def index
     @wishes = Wish.all
 
@@ -40,16 +44,14 @@ class WishesController < ApplicationController
   # POST /wishes
   # POST /wishes.json
   def create
-    @wish = Wish.new(params[:wish])
-
-    respond_to do |format|
-      if @wish.save
-        format.html { redirect_to @wish, notice: 'Wish was successfully created.' }
-        format.json { render json: @wish, status: :created, location: @wish }
-      else
-        format.html { render action: "new" }
-        format.json { render json: @wish.errors, status: :unprocessable_entity }
-      end
+    
+    @wish = current_user.wishes.build(params[:wish])
+    if @wish.save
+      flash[:success] = "Wish created!"
+      redirect_to root_url
+    else
+      @feed_items = []
+      render 'static_pages/home'
     end
   end
 
@@ -72,12 +74,13 @@ class WishesController < ApplicationController
   # DELETE /wishes/1
   # DELETE /wishes/1.json
   def destroy
-    @wish = Wish.find(params[:id])
     @wish.destroy
-
-    respond_to do |format|
-      format.html { redirect_to wishes_url }
-      format.json { head :no_content }
-    end
+    redirect_to root_url
   end
 end
+
+  private
+    def correct_user
+      @wish = current_user.wishes.find_by_id(params[:id])
+      redirect_to root_url if @wish.nil?
+    end
